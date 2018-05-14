@@ -1,0 +1,22 @@
+- name: used to clean the disks of gameservers
+  hosts: gameserver
+  remote_user: root
+  gather_facts: false
+  tasks:
+  - name: creat the unified dir
+    shell: /bin/mkdir -p /data/shellscripts
+
+  - name: copy the move_script to destination
+    template: src=/data/shellscripts/J/gameservermv.sh dest=/data/shellscripts/gameservermv.sh
+
+  - name: clean the sys disk
+    shell: /bin/bash /data/shellscripts/gameservermv.sh >>/dev/null 2>&1
+    ignore_errors: True
+
+  - name: copy the clean_script to destination
+    template: src=/data/shellscripts/J/clean_game_back.sh dest=/data/shellscripts/clean_game_back.sh
+
+  - name: clean the data disk
+    shell: /bin/bash /data/shellscripts/clean_game_back.sh >>/dev/null 2>&1
+    ignore_errors: True
+
