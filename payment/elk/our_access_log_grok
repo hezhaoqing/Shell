@@ -1,0 +1,17 @@
+our log format like :
+
+49.229.104.121 - - [01/May/2018:16:42:00 +0800] "GET /service/subapi/sub?ref=32abb8866b8024a5e8d516ed1c827a75&sc=4542900&kw=A6 HTTP/1.0" 302 0 "http://ss1.mobilelife.co.th/wis/wap/blank.gif?data=aHR0cDovL3N1YmFwaS5zd3Rtb2IuY29tL3NlcnZpY2Uvc3ViYXBpL3N1Yj9yZWY9MzJhYmI4ODY2YjgwMjRhNWU4ZDUxNmVkMWM4MjdhNzUmc2M9NDU0MjkwMCZrdz1BNiZiYWNrdXJsPWh0dHA6Ly93d3cuZ29vZ2xlLmNvbSZjYW5jZWx1cmw9aHR0cDovL3d3dy5nb29nbGUuY29tJm9wPUFJUw==" "Mozilla/5.0 (Linux; Android 5.1; I552 Build/KOT49H) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/30.0.0.0 Mobile Safari/537.36" "49.229.104.121"
+
+
+
+1.参考网上的资料 得出正则如下
+%{IPORHOST:clientip} - - \[%{HTTPDATE:timestamp}\] "(?:%{WORD:verb} %{NOTSPACE:request}(?: HTTP/%{NUMBER:httpversion})?|%{DATA:rawrequest})" %{NUMBER:response} (?:%{NUMBER:bytes}|-) %{QS:referrer} %{QS:agent} %{QS:x_forwarded_for}
+
+2.进行修改之后
+%{IP:clientip} - - \[%{HTTPDATE:timestamp}\] %{QS:request} %{NUMBER:response} %{NUMBER:bytes} %{QS:referrer} %{QS:useragent} %{QS:x_forward_for}
+
+3.为了取出日志中的sc和kw,继续修改
+%{IP:clientip} - - \[%{HTTPDATE:timestamp}\] \"%{WORD:method} %{NOTSPACE:request}.*sc=%{NUMBER:SC}.*kw=A%{NUMBER:KW}.*\" %{NUMBER:statusnum} %{NUMBER:bytes} %{QS:url} %{QS:UA} %{QS:x_foward_for}
+ 
+4.正则3只能取出kw=A1的值，公司日后会增加像kw=01的产品，继续修改
+%{IP:clientip} - - \[%{HTTPDATE:timestamp}\] \"%{WORD:method} %{NOTSPACE:request}.*sc=%{NUMBER:SC}.*kw=.*%{NUMBER:KW}.*%{NUMBER:bb}.*\" %{NUMBER:statusnum} %{NUMBER:bytes} %{QS:url} %{QS:UA} %{QS:x_foward_for}
