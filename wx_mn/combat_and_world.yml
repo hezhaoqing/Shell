@@ -1,0 +1,22 @@
+- name: used to clean the disks of combatservers and worldservers
+  hosts: combatserver
+  remote_user: root
+  gather_facts: false
+  tasks:
+  - name: creat the unified dir
+    command: /bin/mkdir -p /data/shellscripts
+
+  - name: copy the move_script to destination
+    template: src=/data/shellscripts/J/combatservermv.sh dest=/data/shellscripts/combatservermv.sh
+
+  - name: clean the sys disk
+    shell: /bin/bash /data/shellscripts/combatservermv.sh >>/dev/null 2>&1
+    ignore_errors: True
+
+  - name: copy the clean_script to destination
+    template: src=/data/shellscripts/J/clean_combat_back.sh dest=/data/shellscripts/clean_combat_back.sh
+
+  - name: clean the data disk
+    shell: /bin/bash /data/shellscripts/clean_combat_back.sh >>/dev/null 2>&1
+    ignore_errors: True
+
