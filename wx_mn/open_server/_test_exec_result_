@@ -1,0 +1,38 @@
+[root@10-10-74-184 qin]# python openserver.py 
+gameserverip: 10.10.1.1
+dbserverip: 10.10.2.2
+userid: a_mix_11
+gamefilepath: /data/qin/qin/*
+dbfilepath: /data/qin/qin/*
+ansible 10.10.2.2 -m shell -a " useradd a_mix_11  " 
+ansible 10.10.1.1 -m shell -a " useradd a_mix_11  " 
+ERROR! Specified hosts and/or --limit does not match any hosts
+ERROR! Specified hosts and/or --limit does not match any hosts
+ansible 10.10.1.1 -m shell -a " cp -r /home/a_mix_96/* /home/a_mix_11  " 
+ansible 10.10.2.2 -m shell -a " cp -r /home/a_mix_96/* /home/a_mix_11  " 
+ERROR! Specified hosts and/or --limit does not match any hosts
+ansible 10.10.1.1 -m copy -a " src=/data/qin/qin/* dest=/home/a_mix_11 " 
+ERROR! Specified hosts and/or --limit does not match any hosts
+ansible 10.10.2.2 -m copy -a " src=/data/qin/qin/* dest=/home/a_mix_11 " 
+ERROR! Specified hosts and/or --limit does not match any hosts
+ansible 10.10.1.1 -m shell -a " cd /home/a_mix_11; bash configfile.sh " 
+ERROR! Specified hosts and/or --limit does not match any hosts
+ansible 10.10.2.2 -m shell -a " cd /home/a_mix_11; bash configfile.sh " 
+ERROR! Specified hosts and/or --limit does not match any hosts
+ansible 10.10.1.1 -m shell -a " su - a_mix_11 -c ' cd /home/a_mix_11/; bash update.sh  ' "     
+ERROR! Specified hosts and/or --limit does not match any hosts
+ansible 10.10.2.2 -m shell -a " su - a_mix_11 -c ' cd /home/a_mix_11/; bash update.sh  ' "     
+ERROR! Specified hosts and/or --limit does not match any hosts
+ERROR! Specified hosts and/or --limit does not match any hosts
+ansible 10.10.2.2 -m shell -a " su - a_mix_11 -c ' cd /home/a_mix_11/; bash do.sh start SCS  ' "     
+ERROR! Specified hosts and/or --limit does not match any hosts
+ansible 10.10.2.2 -m shell -a " su - a_mix_11 -c ' cd /home/a_mix_11/; bash do.sh start DBU ' "     
+ERROR! Specified hosts and/or --limit does not match any hosts
+ansible 10.10.2.2 -m shell -a " su - a_mix_11 -c ' cd /home/a_mix_11/; bash do.sh kill SCS ' "     
+ERROR! Specified hosts and/or --limit does not match any hosts
+ansible 10.10.2.2 -m shell -a " su - a_mix_11 -c ' cd /home/a_mix_11/; bash do.sh kill DBU ' "     
+ERROR! Specified hosts and/or --limit does not match any hosts
+ansible 10.10.2.2 -m shell -a " su - a_mix_11 -c ' cd /home/a_mix_11/; bash do.sh allb ' "     
+ERROR! Specified hosts and/or --limit does not match any hosts
+ansible 10.10.1.1 -m shell -a " su - a_mix_11 -c ' cd /home/a_mix_11/; bash do.sh alla  ' "     
+ERROR! Specified hosts and/or --limit does not match any hosts
