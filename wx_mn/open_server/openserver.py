@@ -8,6 +8,8 @@ import time
 
 #vim /etc/hosts
 
+
+### 定义这个函数的原因是：  游戏服、db服 在做相同的动作，而 main 函数里的ansibledo 是只在某类服务器执行的操作 ####
 def threaddo(hostip, path, userid):
 	ansibledo1 = "ansible %s -m shell -a \" useradd %s  \" " % (hostip, userid)
 
