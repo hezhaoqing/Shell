@@ -1,9 +1,14 @@
+The input is test,so the result is just for test.
+
+
+
 [root@10-10-74-184 qin]# python openserver.py 
 gameserverip: 10.10.1.1
 dbserverip: 10.10.2.2
 userid: a_mix_11
 gamefilepath: /data/qin/qin/*
 dbfilepath: /data/qin/qin/*
+
 ansible 10.10.2.2 -m shell -a " useradd a_mix_11  " 
 ansible 10.10.1.1 -m shell -a " useradd a_mix_11  " 
 ERROR! Specified hosts and/or --limit does not match any hosts
