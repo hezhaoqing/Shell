@@ -7,11 +7,21 @@ elif [[ $1 -lt 10 && $2 -lt 10 ]];then
 	new2=$(echo $2| sed "s/0//")
 fi
 ###############然后下面修改区号时候，还需要再次判断 $1 $2是否小于10，所以上面的判断显的有点多余，
+
+# **************************************** 上面一段 只为记录,实际使用,从下面开始.**********************************************
+
 ###############所以不管$1 $2是否小于10，直接定义new1 new2，
 new1=$(echo $1| sed "s/0//")
 new2=$(echo $2| sed "s/0//")
 ###############然后突然意识到，本意是把01 02这些替换为1 2，不做判断 直接定义的话会不会把10 100这些区号影响到？
 ###############结论，想多了，不会。直接定义new1 new2确实会把10 20这些正常的区号也重新定义，但是修改区号时候还会判断，并不会引用
+if [ $# -ne 4 ];then
+	echo "ERROR: four args are needed."
+	exit 1
+elif [[ $3 -gt 5 || $4 -gt 5 ]];then
+	echo "ERROR: port error."
+	exit 1
+fi
 
 
 cat > /opt/${1}_${2}_${3}_${4}.sh <<end
@@ -22,9 +32,9 @@ cd /home && cp -r a_mix_$1/* a_mix_$2
 sed -i 's/game_mix_$1/game_mix_$2/g' /home/a_mix_$2/backup/common_config.lua
 sed -i '/.*port.*= ${3}.*/s/= $3/= $4/g' /home/a_mix_$2/backup/common_config.lua
 sed -i '/current_area_id.*= ${1}.*/s/= $1/= $2/g' /home/a_mix_$2/backup/common_config.lua
-if [[ $1 -lt 10 && $2 -ge 10 ]];then
+if [[ 10#$1 -lt 10 && 10#$2 -ge 10 ]];then
 	sed -i '/current_area_id.*= ${new1}.*/s/= ${new1}/= $2/g' /home/a_mix_$2/backup/common_config.lua
-elif [[ $1 -lt 10 && $2 -lt 10 ]];then
+elif [[ 10#$1 -lt 10 && 10#$2 -lt 10 ]];then
 	sed -i '/current_area_id.*= ${new1}.*/s/= ${new1}/= ${new2}/g' /home/a_mix_$2/backup/common_config.lua
 fi
 sed -i 's/${3}9999/${4}9999/' /home/a_mix_$2/backup/config.*
@@ -53,8 +63,8 @@ su - a_mix_$2 -c 'cd /home/a_mix_$2;bash do.sh kill DBU'
 su - a_mix_$2 -c 'cd /home/a_mix_$2;bash do.sh allb'
 end
 
-#if [ -f /opt/${1}_${2}_${3}_${4}.sh ];then
-#	bash /opt/${1}_${2}_${3}_${4}.sh
-#else
-#	exit 1
-#fi
+if [ -f /opt/${1}_${2}_${3}_${4}.sh ];then
+	bash /opt/${1}_${2}_${3}_${4}.sh
+else
+	exit 1
+fi
