@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#######这个版本就是直接传六个参数，专门为了区号这一项传两个参数，区号大于9的时候就显得麻烦了。
 if [ $# -ne 6 ];then
 	echo "ERROR: six args are needed."
 	exit 1
