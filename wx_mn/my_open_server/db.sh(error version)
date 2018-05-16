@@ -14,14 +14,16 @@ sed -i '/.*port.*= ${3}.*/s/= $3/= $4/g' /home/a_mix_$2/backup/common_config.lua
 
 sed -i '/current_area_id.*= ${1}.*/s/= $1/= $2/g' /home/a_mix_$2/backup/common_config.lua
 
+##########这里临时定义的new1可以得到想要的结果，但是不会传给之后的sed,因为这个只是把内容cat到1个文件，脚本开始并没有定义new1 new2这两个变量
 if [[ $1 -lt 10 && $2 -ge 10 ]];then
 	new1=$(echo $1| sed "s/0//")
 	sed -i '/current_area_id.*= ${new1}.*/s/= ${new1}/= $2/g' /home/a_mix_$2/backup/common_config.lua
 elif [[ $1 -lt 10 && $2 -lt 10 ]];then
 	new1=$(echo $1| sed "s/0//")
-  new2=$(echo $2| sed "s/0//")
-  sed -i '/current_area_id.*= ${new1}.*/s/= ${new1}/= ${new2}/g' /home/a_mix_$2/backup/common_config.lua
+  	new2=$(echo $2| sed "s/0//")
+  	sed -i '/current_area_id.*= ${new1}.*/s/= ${new1}/= ${new2}/g' /home/a_mix_$2/backup/common_config.lua
 fi
+##########所以这是一个错误的版本，修改之后在脚本开头直接定义
 
 sed -i 's/${3}9999/${4}9999/' /home/a_mix_$2/backup/config.*
 
