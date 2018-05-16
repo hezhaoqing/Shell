@@ -7,19 +7,19 @@
 
 纳闷，想着手动sed没问题，难道是判断条件的问题？
 测试：
-[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 02 -lt 10 ]];then echo ok;fi
+[root@10-10-74-184 backup]# [[ 01 -lt 10 && 02 -lt 10 ]] && echo ok
 ok
-[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 03 -lt 10 ]];then echo ok;fi
+[root@10-10-74-184 backup]# [[ 01 -lt 10 && 03 -lt 10 ]] && echo ok
 ok
-[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 04 -lt 10 ]];then echo ok;fi
+[root@10-10-74-184 backup]# [[ 01 -lt 10 && 04 -lt 10 ]] && echo ok
 ok
-[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 05 -lt 10 ]];then echo ok;fi
+[root@10-10-74-184 backup]# [[ 01 -lt 10 && 05 -lt 10 ]] && echo ok
 ok
-[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 06 -lt 10 ]];then echo ok;fi
+[root@10-10-74-184 backup]# [[ 01 -lt 10 && 06 -lt 10 ]] && echo ok
 ok
-[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 07 -lt 10 ]];then echo ok;fi
+[root@10-10-74-184 backup]# [[ 01 -lt 10 && 07 -lt 10 ]] && echo ok
 ok
-[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 08 -lt 10 ]];then echo ok;fi
+[root@10-10-74-184 backup]# [[ 01 -lt 10 && 08 -lt 10 ]] && echo ok
 -bash: [[: 08: value too great for base (error token is "08")
 [root@10-10-74-184 backup]# 
 
@@ -41,9 +41,9 @@ hour=$((10#$hour))
 这样获取的hour 就是 我们所要的十进制 8
 
 测试：
-[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 08 -lt 10 ]];then echo ok;fi
+[root@10-10-74-184 backup]# [[ 01 -lt 10 && 08 -lt 10 ]] && echo ok
 -bash: [[: 08: value too great for base (error token is "08")
-[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 10#08 -lt 10 ]];then echo ok;fi
+[root@10-10-74-184 backup]# [[ 01 -lt 10 && 10#08 -lt 10 ]] && echo ok
 ok
 
 果然解决！
