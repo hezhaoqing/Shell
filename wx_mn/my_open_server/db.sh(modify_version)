@@ -2,7 +2,7 @@
 ###############刚开始我是在定义变量的时候做了一下判断，就是判断$1 $2 小于10才定义new1 new2.
 if [[ $1 -lt 10 && $2 -ge 10 ]];then
 	new1=$(echo $1| sed "s/0//")
-elif [[ $1 -lt 10 && $2 -lt 10 ]];then
+elif [[ $1 -lt 10 && $2 -lt 10 ]];then              #### 此段弃用，所以未修改八进制bug,见new_bug.txt ####
 	new1=$(echo $1| sed "s/0//")
 	new2=$(echo $2| sed "s/0//")
 fi
