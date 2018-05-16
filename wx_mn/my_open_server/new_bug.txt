@@ -1,0 +1,50 @@
+使用修改过的版本之后，又发现了新的坑！
+偏偏我第一次测试就随机从01创建了08这个区服，结果发现执行完成之后没改区号！！！
+我手动执行 sed -i '/current_area_id.*= 1.*/s/= 1/= 8/g' /home/a_mix_08/backup/common_config.lua 
+可以正确修改！
+我以为是shell少执行了这一句，重新创建03区服，加了sleep 2，结果3服正确修改
+以为解决，删掉08再次创建，结果仍然没有修改，意识到没那么简单。
+
+纳闷，想着手动sed没问题，难道是判断条件的问题？
+测试：
+[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 02 -lt 10 ]];then echo ok;fi
+ok
+[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 03 -lt 10 ]];then echo ok;fi
+ok
+[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 04 -lt 10 ]];then echo ok;fi
+ok
+[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 05 -lt 10 ]];then echo ok;fi
+ok
+[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 06 -lt 10 ]];then echo ok;fi
+ok
+[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 07 -lt 10 ]];then echo ok;fi
+ok
+[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 08 -lt 10 ]];then echo ok;fi
+-bash: [[: 08: value too great for base (error token is "08")
+[root@10-10-74-184 backup]# 
+
+擦，还真是。01-07都是正常的修改区号，但是08就不会修改。
+难道08不小于10 ？？？
+
+百度： 
+-bash: [[: 08: value too great for base (error token is "08")
+
+答案：
+在使用shell的时候，获取的当前的小时或月份（08，09等）进行计算是，提示：
+hour=08
+hour=$((hour)) 
+-bash: 08: value too great for base (error token is "08")
+搜索之后发现0开头的数字表示八进制，在八进制数中，当然没有08，09 等这样的数，所以需要在$hour 前加 10# ，这样就表示 这是十进制，就不会报错了。
+修改之后：
+hour=08
+hour=$((10#$hour))
+这样获取的hour 就是 我们所要的十进制 8
+
+测试：
+[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 08 -lt 10 ]];then echo ok;fi
+-bash: [[: 08: value too great for base (error token is "08")
+[root@10-10-74-184 backup]# if [[ 01 -lt 10 && 10#08 -lt 10 ]];then echo ok;fi
+ok
+
+果然解决！
+
