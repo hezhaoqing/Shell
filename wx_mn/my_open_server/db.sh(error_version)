@@ -1,5 +1,13 @@
 #!/bin/bash
 
+if [ $# -ne 4 ];then
+	echo "ERROR: four args are needed."
+	exit 1
+elif [[ $3 -gt 5 || $4 -gt 5 ]];then
+	echo "ERROR: port error."
+	exit 1
+fi
+
 cat > /opt/${1}_${2}_${3}_${4}.sh <<end
 #!/bin/bash
 ### used for guofu db ###
@@ -65,8 +73,8 @@ su - a_mix_$2 -c 'cd /home/a_mix_$2;bash do.sh kill DBU'
 su - a_mix_$2 -c 'cd /home/a_mix_$2;bash do.sh allb'
 end
 
-#if [ -f /opt/${1}_${2}_${3}_${4}.sh ];then
-#	bash /opt/${1}_${2}_${3}_${4}.sh
-#else
-#	exit 1
-#fi
+if [ -f /opt/${1}_${2}_${3}_${4}.sh ];then
+	bash /opt/${1}_${2}_${3}_${4}.sh
+else
+	exit 1
+fi
