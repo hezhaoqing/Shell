@@ -1,0 +1,27 @@
+#!/usr/bin/expect -f
+
+set ipaddress [lindex $argv 0]
+set passwd [lindex $argv 1]
+
+set srcfile [lindex $argv 2]
+set destfile [lindex $argv 3]
+
+spawn scp -r  $srcfile root@$ipaddress:$destfile
+
+set timeout 60
+
+expect {
+
+        "yes/no" { send "yes\r";exp_continue }
+
+        "password:" { send "$passwd\r" }
+}
+
+#set timeout 30
+
+#send "xxxxxx"
+
+
+send "exit\r"
+
+expect eof
