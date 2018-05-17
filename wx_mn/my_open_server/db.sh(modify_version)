@@ -62,9 +62,10 @@ su - a_mix_$2 -c 'cd /home/a_mix_$2;bash do.sh kill SCS'
 su - a_mix_$2 -c 'cd /home/a_mix_$2;bash do.sh kill DBU'
 su - a_mix_$2 -c 'cd /home/a_mix_$2;bash do.sh allb'
 end
-
+sleep 1
 if [ -f /opt/${1}_${2}_${3}_${4}.sh ];then
 	bash /opt/${1}_${2}_${3}_${4}.sh
 else
+	echo "ERROR: create failed."
 	exit 1
 fi
