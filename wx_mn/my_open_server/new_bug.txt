@@ -22,7 +22,6 @@ ok
 [root@10-10-74-184 backup]# [[ 01 -lt 10 && 08 -lt 10 ]] && echo ok
 -bash: [[: 08: value too great for base (error token is "08")
 [root@10-10-74-184 backup]# 
-
 擦，还真是。01-07都是正常的修改区号，但是08就不会修改。
 难道08不小于10 ？？？
 
@@ -47,4 +46,17 @@ hour=$((10#$hour))
 ok
 
 果然解决！
+
+
+最新测试：
+[root@10-10-74-184 J]# [ 08 -lt 10 ] && echo ok
+ok
+[root@10-10-74-184 J]# [ 01 -lt 10 ] && [ 08 -lt 10 ] && echo ok
+ok
+所以，判断条件用
+if [ $1 -lt 10 ] && [ $2 -lt 10 ];then
+替代
+if [[ $1 -lt 10 && $2 -lt 10 ]];then
+也是可以解决这个问题的。
+
 
