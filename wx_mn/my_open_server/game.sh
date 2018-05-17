@@ -52,5 +52,6 @@ sleep 1
 if [ -f /opt/${1}_${2}_${3}_${4}.sh ];then
 	bash /opt/${1}_${2}_${3}_${4}.sh
 else
+	echo "ERROR: CREATE FAILED."
 	exit 1
 fi
