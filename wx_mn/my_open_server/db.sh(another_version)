@@ -29,7 +29,6 @@ sed -i '/current_area_id.*= ${5}.*/s/= $5/= $6/g' /home/a_mix_$2/backup/common_c
 sed -i 's/${3}9999/${4}9999/' /home/a_mix_$2/backup/config.*
 
 grep ${4}9 /home/a_mix_$2/backup/ -r
-
 #############################################################################
 if [ $3 -eq 3 ];then
 	sed -i '/.*port.*= ${4}306.*/s/= $4/= 3/g' /home/a_mix_$2/backup/common_config.lua
@@ -58,16 +57,17 @@ su - a_mix_$2 -c 'cd /home/a_mix_$2;bash update.sh'
 su - a_mix_$2 -c 'cd /home/a_mix_$2;bash do.sh start SCS'
 su - a_mix_$2 -c 'cd /home/a_mix_$2;bash do.sh start DBU'
 
-sleep 10
+sleep 12
 
 su - a_mix_$2 -c 'cd /home/a_mix_$2;bash do.sh kill SCS'
 su - a_mix_$2 -c 'cd /home/a_mix_$2;bash do.sh kill DBU'
 
 su - a_mix_$2 -c 'cd /home/a_mix_$2;bash do.sh allb'
 end
-
+sleep 1
 if [ -f /opt/${1}_${2}_${3}_${4}.sh ];then
 	bash /opt/${1}_${2}_${3}_${4}.sh
 else
+	echo "ERROR: create failed."
 	exit 1
 fi
