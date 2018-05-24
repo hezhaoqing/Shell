@@ -24,6 +24,14 @@ elif [[ $3 -gt 5 || $4 -gt 5 ]];then
 fi
 
 
+read -p "You input $1 $2 $3 $4 , [yes/no ?] :" ANSWER
+
+if [ $ANSWER != "yes" ];then
+        echo "Determine your input."
+        exit 1
+fi
+
+
 cat > /opt/${1}_${2}_${3}_${4}.sh <<end
 #!/bin/bash
 ### used for guofu db ###
