@@ -1,0 +1,24 @@
+#### need to give three vars in command line when you use this playbook ####
+#    通过命令行传参 使用
+#### like this: ansible-playbook all.yml --extra-vars "hosts=gameserver mvscript=gameservermv.sh cleanscript=clean_game_back.sh" ####
+- name: used to clean the disks of servers
+  hosts: '{{ hosts }}'
+  remote_user: root
+  gather_facts: false
+  tasks:
+  - name: creat the unified dir
+    shell: /bin/mkdir -p /data/shellscripts
+
+  - name: copy the move_script to destination
+    template: src=/data/shellscripts/{{ mvscript }} dest=/data/shellscripts/{{ mvscript }}
+
+  - name: clean the sys disk
+    shell: /bin/bash /data/shellscripts/{{ mvscript }} >>/dev/null 2>&1
+    ignore_errors: True
+
+  - name: copy the clean_script to destination
+    template: src=/data/shellscripts/{{ cleanscript }} dest=/data/shellscripts/{{ cleanscript }}
+
+  - name: clean the data disk
+    shell: /bin/bash /data/shellscripts/{{ cleanscript }} >>/dev/null 2>&1
+    ignore_errors: True
