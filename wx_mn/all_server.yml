@@ -9,6 +9,9 @@
   - name: creat the unified dir
     shell: /bin/mkdir -p /data/shellscripts
 
+  - name: install uma_32
+    script: /data/shellscripts/J/uma_32.sh
+
   - name: copy the move_script to destination
     template: src=/data/shellscripts/{{ mvscript }} dest=/data/shellscripts/{{ mvscript }}
 
