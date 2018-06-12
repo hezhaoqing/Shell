@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -x             ### 显示执行过程，相当于sh -x $0. 另一种写法set -o xtrace
+
+set -u             ### shell默认忽略未定义的变量，set -u，遇到不存在的变量就会报错，并停止执行。另一种写法set -o nounset
+
+set -e             ### set -e使得脚本只要发生错误，就终止执行，相当于 command || exit. 特殊的是 不适用于管道命令。
+
+set -o pipefail    ### 此命令解决有管道的命令，任1个子命令失败就终止。
+
+# 可以合起来使用
+# 写法一 ：set -euxo pipefail
+# 写法二 ：set -eux
+          set -o pipefail
+
+red='\033[0;31m'
+green='\033[0;32m'
+neutral='\033[0m'
+
+read -p "please choice a colour :" INPUT
+
+if [ $INPUT == red ];then
+	printf $red"red"$neutral"\n"
+elif [ $INPUT == green ];then
+	printf $green"green"$neutral"\n"
+else
+	printf "##########\n"
+fi
