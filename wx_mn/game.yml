@@ -4,7 +4,7 @@
   gather_facts: false
   tasks:
   - name: creat the unified dir
-    shell: /bin/mkdir -p /data/shellscripts
+    file: name=/data/shellscripts state=directory
 
   - name: install uma_32
     script: /data/shellscripts/J/uma_32.sh
