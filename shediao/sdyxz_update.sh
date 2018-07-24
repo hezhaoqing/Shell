@@ -10,7 +10,7 @@ elif [ $1 == yn ];then
 elif [ $1 == yf ];then
         cd /data/sd2/client && pwd
 else
-        echo "Invalid argument. \$1: Only tg or yn."
+        echo "Invalid argument. \$1: Only tg yn or yf."
 	exit 1
 fi
 
@@ -39,6 +39,6 @@ done
 	;;
 
 	*)
-	echo "Invalid argument.   Only p or s."
+	echo "Invalid argument. \$2: Only p or s."
 	;;
 esac
