@@ -1,8 +1,21 @@
 #!/bin/bash
-cd /data/sdyxz/client &&
-pwd
 
-case $1 in
+if [ $# != 2 ];then
+        echo "Need two arguments."
+        exit 1
+elif [ $1 == tg ];then
+        cd /data/sdyxz/client && pwd
+elif [ $1 == yn ];then
+        cd /data/sdyxzVN/client && pwd
+elif [ $1 == yf ];then
+        cd /data/sd2/client && pwd
+else
+        echo "Invalid argument. \$1: Only tg or yn."
+	exit 1
+fi
+
+
+case $2 in
 	p)
 for i in `diff iOS/ test/iOS/ |grep "Only in test/iOS/"|grep iOS_ |awk '{print $NF}'`
 do
