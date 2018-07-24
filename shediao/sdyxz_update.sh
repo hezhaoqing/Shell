@@ -7,10 +7,10 @@ elif [ $1 == tg ];then
         cd /data/sdyxz/client && pwd
 elif [ $1 == yn ];then
         cd /data/sdyxzVN/client && pwd
-elif [ $1 == yf ];then
+elif [ $1 == yd ];then
         cd /data/sd2/client && pwd
 else
-        echo "Invalid argument. \$1: Only tg yn or yf."
+        echo "Invalid argument. \$1: Only tg yn or yd."
 	exit 1
 fi
 
