@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ $# != 2 ];then
-        echo "Need two arguments."
+        echo -e "\033[31m Need two arguments. \033[0m"
         exit 1
 elif [ $1 == tg ];then
         cd /data/sdyxz/client && pwd
@@ -10,7 +10,7 @@ elif [ $1 == yn ];then
 elif [ $1 == yd ];then
         cd /data/sd2/client && pwd
 else
-        echo "Invalid argument. \$1: Only tg yn or yd."
+        echo -e "\033[31m Invalid argument. \$1: Only tg or yn. \033[0m"
 	exit 1
 fi
 
@@ -45,9 +45,9 @@ ls -l Android/patchlist.xml
 	;;
 
 	*)
-	echo "Invalid argument. \$2: Only p or s."
+	echo -e "\033[31m Invalid argument. \$2: Only p or s. \033[0m"
 	exit 1
 	;;
 esac
 
-printf "Update completed, please flush CDN.\n"
+echo -e "\033[32m Update completed, please flush CDN. \033[0m"
