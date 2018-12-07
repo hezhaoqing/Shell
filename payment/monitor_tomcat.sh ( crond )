@@ -1,0 +1,67 @@
+#!/bin/bash
+DATE=`date +%F" "%T`
+FILE=/data/shellscripts/monitor9000_record.txt
+
+TOMCAT9000_1=`ps -ef | grep "tomcat-ais9000" | grep -v grep | sed 's/ [ ]*/:/g'|cut -d: -f2| wc -l`
+TOMCAT9000_2=`netstat -lntp |grep 9000 |wc -l`
+
+start(){
+    cd /data/tomcat/tomcat-ais9000/bin/
+./startup.sh
+}
+
+stop(){ 
+     ps -ef | grep "tomcat-ais9000" | grep -v grep | sed 's/ [ ]*/:/g'|cut -d: -f2| kill -9 `cat`
+cd /data/tomcat/tomcat-ais9000/work
+rm -rf Catalina
+}
+
+reload(){
+        stop
+        sleep 2
+        start
+}
+
+if [[ ${TOMCAT9000_1} == 0 || ${TOMCAT9000_2} == 0 ]];then
+	reload
+	echo $DATE >> $FILE
+	echo "restart tomcat9000" >> $FILE
+fi
+---------------------------------------------------------------------------------------------------------------
+# Usage:        tomcat [start|stop|reload|restart]  
+#  
+export PATH=$PATH:$HOME/bin
+export BASH_ENV=$HOME/.bashrc
+export USERNAME="root"
+
+#JAVA_OPTS='-Xms256m -Xmx512m'
+#JAVA_OPTS="$JAVA_OPTS -server -XX:PermSize=256M -XX:MaxPermSize=512m"
+case "$1" in
+start)
+#startup the tomcat  
+    echo -n "tomcat start: "  
+    cd /data/tomcat/tomcat-ais9000/bin/
+./startup.sh
+    echo " Tomcat start finished" 
+	cat /data/shellscripts/tomcat9000_monitor.back > /data/shellscripts/tomcat9000_monitor.sh        ### 正常定时任务
+      sh /data/website/9000-ais/nlog.sh
+;;
+stop)
+# stop tomcat  
+     echo -n "tomcat stop:"  
+     ps -ef | grep "tomcat-ais9000" | grep -v grep | sed 's/ [ ]*/:/g'|cut -d: -f2| kill -9 `cat`
+cd /data/tomcat/tomcat-ais9000/work
+rm -rf Catalina
+        echo "finished"  
+	cat /data/shellscripts/null.sh > /data/shellscripts/tomcat9000_monitor.sh                        ### 空的定时任务
+    ;;
+    reload|restart)
+        $0 stop
+        sleep 2
+        $0 start
+    ;;
+    *)
+        echo "Usage: tomcat [start|stop|reload|restart]"  
+        exit 1
+    esac
+    exit 0
