@@ -1,0 +1,55 @@
+#!/bin/bash
+table=$1
+
+conn_host='10.8.91.13'
+conn_user='root'
+conn_pwd='xxx'
+conn_db='CPAPI'
+
+startTime=`date +%s`
+s_size=$(mysql -u$conn_user -p$conn_pwd -P3306 -h$conn_host information_schema -e "select concat(round(sum(DATA_LENGTH/1024/1024),2),'MB') as data  from TABLES where table_schema=\"$conn_db\" and table_name=\"$table\"")
+startSize=`echo $s_size|awk '{print $2}'`
+
+echo "START TO CLEAN $table...."
+
+pt-online-schema-change  --user=${conn_user} --password=${conn_pwd} --host=${conn_host}  P=3306,D=${conn_db},t=$table --charset=utf8 --alter="ENGINE=InnoDB"  --nocheck-replication-filters --alter-foreign-keys-method=auto  --execute > /opt/pt.log
+
+endTime=`date +%s`
+e_size=$(mysql -u$conn_user -p$conn_pwd -P3306 -h$conn_host information_schema -e "select concat(round(sum(DATA_LENGTH/1024/1024),2),'MB') as data  from TABLES where table_schema=\"$conn_db\" and table_name=\"$table\"")
+endSize=`echo $e_size|awk '{print $2}'`
+
+sumTime=$[ $endTime - $startTime ]
+
+echo "$table BEFORE ${startSize}, NOW ${endSize}, USETIME:$sumTime second"
+
+
+
+
+***附安装过程：
+1.检查安装pt工具所需的依赖
+yum install -y perl-DBI perl-DBD-MySQL perl-Time-HiRes perl-IO-Socket-SSL
+
+2、下载和安装percona toolkit的包
+wget http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm
+
+rpm -ivh percona-release-0.1-4.noarch.rpm
+
+3、查看可以安装的包
+rpm -qa | grep percona-toolkit
+
+    percona-toolkit.x86_64                      3.0.9-1.el6                  @percona-release-x86_64
+    percona-toolkit.noarch                      2.2.20-1                     percona-release-noarch
+    percona-toolkit-debuginfo.x86_64            3.0.9-1.el6                  percona-release-x86_64
+
+4、安装percona-toolkit工具包
+yum install percona-toolkit
+
+5、安装后可通过下面的命令确认是否安装成功：
+pt-query-digest --help
+pt-table-checksum --help
+如果命令提示可以正常显示，则说明pt工具已经正常安装和使用了
+
+***附注意事项：
+1.外键
+2.触发器
+3.磁盘空间
