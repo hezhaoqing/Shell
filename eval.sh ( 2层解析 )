@@ -1,0 +1,23 @@
+#!/bin/bash
+
+a1=(a b c)
+a2=(d e f g)
+a3=(h i j k l)
+
+for i in {1..3}
+do
+	eval args=$(echo '${a'$i'[@]}')
+	echo "sh xxx.sh $args" | bash
+done
+
+***********************************************
+
+执行如下：
+sh xxx.sh a b c
+sh xxx.sh d e f g
+sh xxx.sh h i j k l
+
+如果不加eval,只解析到变量$i,如下：
+sh xxx.sh ${a1[@]}
+sh xxx.sh ${a2[@]}
+sh xxx.sh ${a3[@]}
