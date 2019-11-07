@@ -1,6 +1,8 @@
 openssl req -new -newkey rsa:2048 -nodes -keyout dtac.key -out dtac.csr
 
 
+### 配置之后一定要restart，reload是没用的。
+### 另外要注意防火墙是否开启了443.
 
 
 server
