@@ -1,0 +1,165 @@
+各版本的维护时间:
+普通维护，英文版北京时间星期二早上10点，越南版北京时间星期二早上11点，花生、华武、官渡都是北京时间星期三早上10点
+合服维护，英文版没有合服维护，越南版合服维护北京时间星期二早上5-12点，花生、华武、官渡都是北京时间星期三早上5-12点
+
+需在维护前一天把zip包传到跳板机再分发到所有区
+打包流程见“打包.txt”
+
+-------------------------------------------------------------------------华丽的分割线-------------------------------------------------------------------------------------
+普通维护维护流程：
+确认修改了客户端版本号.英文版要刷CDN
+维护前 在群里说明一下。
+
+第一步，登录php后台，把服务器状态设置成维护状态
+
+第二步，打开所有telnet窗口，服务器踢玩家下线，保存排行榜，验证一下查看在线玩家人数是不是0
+踢玩家下线：cmd.clearuser()
+保存排行榜：cmd.savetop()
+查看玩家人数: cmd.p_i(6)
+
+第三步，根据维护脚本来进行操作
+
+第四步，跟运营确认活动表格有没有问题，
+登01游戏服a_mix_01，cat /home/a_mix_01/bin/GS/data/activity_main.csv
+国内四版发宝岚确认一下,越南要那边确认。
+没问题就推送活动，有问题就更新表格，
+打开所有telnet窗口，推送活动的命令如下
+ms.d_activity_data_config.load()
+
+第五步，维护完成，进去看一下活动有没有问题，没问题通知我开服。
+登陆php后台把服务器状态设置成火热状态或者新服状态（越南版本让对方运营确认没问题后让他们自己设置服务器状态即可）
+
+
+-------------------------------------------------------------------------华丽的分割线-------------------------------------------------------------------------------------
+
+
+合服维护流程
+注意事项：需要加载定时踢玩家下线的游戏脚本和改变游戏服务器状态的定时脚本，这一部分见合服相关文档(文档:合服.txt)(这一步操作要在维护合服前一天做好)
+
+流程：
+确认修改了客户端版本号
+第一步，登录php后台，查看服务器状态是否设置成维护状态，确认定时脚本是否执行了，如果没执行接手动设置一下服务器状态(一般不会出现这种状况)
+花生专服: http://106.75.123.214:8880/gm.php/login
+华武专服: http://106.75.22.45:8880/gm.php/login
+官渡专服: http://106.75.175.163:8880/gm.php/login
+
+第二步，验证一下查看在线玩家人数是不是0
+查看玩家人数: cmd.p_i(6)
+
+第三步，根据维护脚本来进行操作，这里执行到update_all.py并检测时候就要停止后面的操作（详细操作已拷贝如下，也可以自己查看维护和维护检查脚本），
+
+维护：                                             维护检查：
+停gameserver                                       停gameserver(国服、新马为a_mix，应用宝为a_yyb)
+python stopgameserver_all.py                       ansible gameserver -m shell -a "ps axu | grep a_mix"
+
+停dbserver                                         停dbserver(国服、新马为a_mix，应用宝为a_yyb)
+python stopdbserver_all.py                         ansible dbserver   -m shell -a "ps axu | grep a_mix"
+
+停combatserver                                     停combatserver
+python stopcombatserver_all.py                     ansible combatserver -m shell -a "ps axu | grep CS"
+
+停worldserver                                      停worldserver
+python stopworldserver_all.py                      ansible worldserver   -m shell -a "ps axu | grep WS"
+
+
+*******
+多个版本同时合服，在九点半前要优先全部做到这。。
+*******
+
+
+备份logs与bin目录                                  备份logs与bin目录
+python backdirbinlog_all.py                        python check_backdirbinlog_all.py
+                                                   (这里最好再做一步检查，python check_update_all.py，是否删除目录)    
+
+备份数据库                                         备份数据库
+python mysql_backup_all.py                         ansible dbserver   -m shell -a "du -sh  /data/MaintenanceMysqlBackup/* | grep `date +%Y%m%d` "
+
+update解压缩zip                                    update解压缩zip
+python update_all.py                               python check_update_all.py
+                                                   
+												   python check_update_all.py |grep "total 44"|wc -l
+	
+
+第五步，登录到游戏服务器1（特别注意：花生版本telnet需要登录到游戏服务器2），切换到a_mix_01用户目录下（任何一个当前未被合服去掉的用户目录下都可以），执行
+cat /home/a_mix_01/bin/MT/lua/mt_config.lua
+查看一下脚本是否没有错误，确认没有错误之后就用a_mix_01用户执行命令
+./do.sh start MT
+然后再ps x 看一下进程是否启动成功
+然后再查看一下日志文件 vim logs/mt.log，
+看一下是否存在提示Check merge rules completed,ready for merging.
+有几组合服就有几句这句提示，数量不对的话就有问题，
+最后再看一下是否存在start telnet server:[ip=0.0.0.0,port=59920]这句话，出现了这句话我们就可以进行合服了，
+
+
+登录到mt的telnet，输入账号root，密码root，
+然后输入指令
+ms.d_merge.start()
+(注意，这一句合服指令绝对不要手误执行两次，如果执行两次合服会有问题)
+等待合服完成即可，合服完成后我们到bin/MT/log下面查看文件完成合服的组数是不是对的，确认没问题后合服就好了，
+最好也看一下logs/mt.log日志
+合服好了后执行ps x得到MT进程pid把MT进程kill掉，
+可以登录一下telnet确认是否真正杀掉了MT进程
+（注意事项：如果MT进程启动失败的话的原因一般是数据库ip设置错了或者数据库名字设置错了，这个时候仔细检查一下mt_config.lua脚本即可）
+
+第六步，到跳板机下面把conf.py下面已经合掉的区屏蔽掉
+（*******特别注意：gameserver和dbserver都要屏蔽掉*******）
+
+第七步，继续执行update_all.py后面的操作（详细操作如下，也可以自己查看维护和维护检查脚本）
+
+维护：****最好等到9点50之后操作                                                        维护检查：
+启动dbserver                                                  启动dbserver
+python startdbserver_all.py                                   python check_process_log.py dbserver   dba.log
+
+启动gameserver                                                启动gameserver
+python startgameserver_all.py                                 python check_process_log.py gameserver gs.log
+
+启动combatserver                                              启动combatserver
+python startcombatserver_all.py                               python check_process_log.py combatserver   cs.log
+
+启动worldserver                                               启动worldserver
+python startworldserver_all.py                                python check_process_log.py worldserver ws.log
+
+第八步，已经合掉的服的telenet要删除掉(防止后面建新服名字混乱)
+
+第九步，合服的服需要重新生成世界boss，依次执行以下命令，
+*****在已经合服的telnet下面执行*****
+-- 查看世界boss列表
+ms.p(ms.d_world_boss_mgr.all_world_boss_info_list)
+-- 手动初始化世界boss(这一步操作必须在5：30以后，不然会生成两个世界BOSS)
+ms.d_world_boss_mgr.on_rst_world_boss_schedule()
+
+第十步，打开所有telnet，同步圣杯争夺战信息（这一步通常是在9点50分启动完成所有服务器后执行才没有问题，启动服务器时可以有意的规划一下时间）
+-- (GS)游戏服上报本区活跃人数 (09:30)
+ms.d_combat_mgr.on_report_area_info()
+******执行完上一步 要等会再执行下一步
+-- (WS)世界服对上报后的服务器进行分组  (09:40)     
+ms.d_data_mgr.on_start_combat_group()
+-- (GS)游戏服查询分组信息  (09:50)
+ms.d_combat_mgr.on_query_group_info()
+
+
+第十一步，跟运营确认活动表格有没有问题，没问题就推送活动，有问题就更新表格，
+登01游戏服a_mix_01，cd bin/GS/data/查看cat activity_main.csv
+
+cat /home/a_mix_01/bin/GS/data/activity_main.csv
+
+发宝岚确认一下。
+没问题就推送活动，有问题就更新表格，
+推送活动的命令如下
+ms.d_activity_data_config.load()
+
+第十二步，修改php后台的游戏服列表的指向，这一步不做的话被合服的服务器玩家进不去游戏(可以通过mysql脚本修改也可以在php后台界面显示修改)
+登录php数据库服务器。
+先备份gm库
+mysqldump -uroot -pqingluan@123 gm > gm_`date +%F`.sql
+然后执行上周提前准备好的脚本
+./php_maintenance_merge_gd.sh
+
+第十三步，群里询问
+活动有没有问题 通知我开服。
+后登陆后台把服务器状态设置成火热状态或者新服状态，
+
+合服的话       看一下合服的区能不能正常进去，活动有没有问题，没问题通知我开服。
+（越南版本让对方运营确认没问题后让他们自己设置服务器状态即可）
+
+************合服完成后要把php数据服务器的定时命令屏蔽掉或者删除这个定时命令************
