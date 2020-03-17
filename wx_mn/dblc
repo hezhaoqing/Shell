@@ -1,0 +1,26 @@
+每周不管是否维护都要run一下。
+run 之前询问宝岚是否svn提交完毕。
+
+打包网址：http://192.168.0.17:8060/overview.html
+账户：admin
+密码：123456
+
+打包方式，点击Run，等待打包完成，下载zip包即可。可通过查看是否有BS和CS目录来确保zip包的完整性。
+
+下载之后，先删除掉跳板机/data/shellscripts/file/packet/目录下的zip包。再rz新的包
+
+传包：传输zip文件(zip文件需放在/data/shellscripts/file/packet/目录下)，传包命令如下(python脚本在/data/shellscripts/pythonscripts目录下)，后面的zip文件名字根据自己传输的zip文件名字来改
+python synzip_all.py HuiHe_Game_Server_For_Linux_Branches_11831_60_artifacts.zip
+检查
+python check_synzip_all.py
+
+
+每周二会维护英文版和越南版，所以我们英文版和越南版的包需要在周二之前(一般是周一)打好包然后上传到对应跳板机分发到所有区
+每周三会维护官渡版本、花生版本和华武版本，所以我们需要在周三之前(一般是周二)打好包然后上传到对应的跳板机上分发到所有区
+
+注意一：
+打包之前需要确认自己需要更新的文件是否都提交到SVN了(如果有合服则需要确认合服脚本mt_config.lua和合服映射表server_map.csv是否提交)，
+打包之前需要跟运营确认是否需要更新的文件都已提交到SVN中，都确认都提交后再进行打包
+
+注意二：
+不管本周是不是有维护，每周一都要对越南版本和英文版本进行打包，每周二都要对官渡版本、花生版本和华武版本进行打包
