@@ -1,0 +1,80 @@
+### monitor tomcat
+*/2 * * * * /bin/bash /data/shellscripts/tomcat8088_monitor.sh >>/dev/null 2>&1
+本来我们是做了定时监测tomcat是否挂掉并拉起的定时任务，
+开发提个需求，就是在他手动关闭tomcat的时候，定时任务不要执行，别的时候才执行。
+
+
+---开发要用的tomcat启停脚本---
+[root@10-31-55-55 ~]# cat /data/website/ais-8088/tomcat.sh 
+# Usage:        tomcat [start|stop|reload|restart]  
+#  
+export PATH=$PATH:$HOME/bin
+export BASH_ENV=$HOME/.bashrc
+export USERNAME="root"
+
+#JAVA_OPTS='-Xms256m -Xmx512m'
+#JAVA_OPTS="$JAVA_OPTS -server -XX:PermSize=256M -XX:MaxPermSize=512m"
+case "$1" in
+start)
+#startup the tomcat  
+    echo -n "tomcat start: "  
+    cd /data/tomcat/tomcat-ais8088/bin/
+./startup.sh
+    echo " Tomcat start finished" 
+        cat /data/shellscripts/tomcat8088_monitor.back > /data/shellscripts/tomcat8088_monitor.sh     ### 添加了第1个动作
+      sh /data/website/ais-8088/nlog.sh
+;;
+stop)
+# stop tomcat  
+     echo -n "tomcat stop:"  
+     ps -ef | grep "tomcat-ais8088" | grep -v grep | sed 's/ [ ]*/:/g'|cut -d: -f2| kill -9 `cat`
+cd /data/tomcat/tomcat-ais8088/work
+rm -rf Catalina
+        echo "finished"  
+        cat /data/shellscripts/null.sh > /data/shellscripts/tomcat8088_monitor.sh                     ### 添加了第2个动作
+    ;;
+    reload|restart)
+        $0 stop
+        sleep 2
+        $0 start
+    ;;
+    *)
+        echo "Usage: tomcat [start|stop|reload|restart]"  
+        exit 1
+    esac
+    exit 0
+    
+    
+    
+---为真正的监控内容准备的back---
+[root@10-31-55-55 ~]# cat /data/shellscripts/tomcat8088_monitor.back 
+#!/bin/bash
+
+DATE=`date +%F" "%T`
+FILE=/data/shellscripts/monitor8088_record.txt
+
+TOMCAT8088_1=`ps -ef | grep "tomcat-ais8088" | grep -v grep | sed 's/ [ ]*/:/g'|cut -d: -f2| wc -l`
+TOMCAT8088_2=`netstat -lntp |grep 8088 |wc -l`
+
+start(){
+    cd /data/tomcat/tomcat-ais8088/bin/
+./startup.sh
+}
+
+stop(){ 
+     ps -ef | grep "tomcat-ais8088" | grep -v grep | sed 's/ [ ]*/:/g'|cut -d: -f2| kill -9 `cat`
+cd /data/tomcat/tomcat-ais8088/work
+rm -rf Catalina
+}
+
+reload(){
+        stop
+        sleep 2
+        start
+}
+
+if [[ ${TOMCAT8088_1} == 0 || ${TOMCAT8088_2} == 0 ]];then
+        reload
+        echo $DATE >> $FILE
+        echo "restart tomcat8088" >> $FILE
+fi
