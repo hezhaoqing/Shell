@@ -31,7 +31,7 @@ EOF
 ### 验证9100端口是否已经被占用
 netstat -lntp| grep 9100 >> /dev/null 2>&1
 
-if [$? == 0];then
+if [ $? == 0 ];then
 
 	echo -e "\033[31mPort:9100 has be used\033[31m"
 	exit 1
@@ -44,10 +44,16 @@ fi
 ### 验证node_exporter是否已经运行
 systemctl status node_exporter.service | grep running  >> /dev/null 2>&1
 
-if [$? == 0];then
+if [ $? == 0 ];then
 
 	echo -e "\033[32m node_exporter is installed  successfully and started.\033[0m"
 
 else
 	echo -e "\033[31m error: node-exporter,please check.\033[0m"
 fi
+
+
+
+### 此处可以添加命令 把服务注册到 consul集群
+
+
