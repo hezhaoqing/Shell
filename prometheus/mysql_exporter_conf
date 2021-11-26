@@ -1,0 +1,51 @@
+1.# cat prometheus.yml
+
+scrape_configs:
+  - file_sd_configs:
+    - files:
+      - mysql.yml
+    job_name: mysql-exporter
+    metrics_path: /metrics
+    relabel_configs:
+    - source_labels: [__address__]
+      regex: (.*)
+      target_label: __address__
+      replacement: $1
+      
+
+
+2.# cat mysql.yml
+
+- labels:
+    instance: test  ### grafana显示的实例的别名
+  targets:
+    - 10.8.0.x:9104   ### mysqld_exporter暴露的端口
+- labels:
+    instance: prod
+  targets:
+    - 10.8.0.x:9105
+            
+### mysql.yml的10.8.0.x:9104会通过prometheus.yml的file_sd_configs配置，作为变量传给$1，然后替换__address__，被prometheus所识别。    
+ 
+ 
+ 
+      
+3.# ./mysqld_exporter --config.my-cnf=/opt/mysql.conf       ### 第一个默认启动9104端口
+    ./mysqld_exporter --web.listen-address=:9105 --config.my-cnf=/opt/.mysql.conf   ### 第二个指定监听9105端口 
+ 
+ 
+ 
+
+4.# cat .mysql.conf
+
+[client]
+user=prometheus
+password=Prometheusadminxxx
+port=3306
+host=rm-ufxxxxx.mysql.rds.aliyuncs.com
+
+      
+      
+5.# GRANT SELECT,PROCESS,REPLICATION CLIENT, ON *.* TO 'prometheus'@'%' IDENTIFIED BY 'xxx';      
+      
+      
