@@ -1,0 +1,13 @@
+{{ define "wechat.default.message" }}
+{{ range .Alerts }}
+========start=========
+告警程序: Prometheus_alert
+告警级别: {{ .Labels.alertlevel }}
+告警类型: {{ .Labels.alertname }}
+故障实例: {{ .Labels.instance }}
+告警概要: {{ .Annotations.summary }}
+告警详情: {{ .Annotations.description }}
+触发时间: {{ (.StartsAt.Add 28800e9).Format "2006-01-02 15:04:05" }}
+=========end===========
+{{ end }}
+{{ end }}
