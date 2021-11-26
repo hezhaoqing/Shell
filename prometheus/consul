@@ -1,0 +1,23 @@
+启动单实例consul：
+# nohup consul agent -ui -node=consul -server -bootstrap-expect 1 -client=0.0.0.0 -data-dir=/opt/consul/ &
+
+注册服务：
+# curl -X PUT -d '{"id": "10.8.1.190","name": "node-exporter","address": "10.8.1.190","port": '9100',"tags": ["sd_node_exporter"], "checks": [{"http": "http://10.8.1.190:9100/","interval": "5s"}]}' http://127.0.0.1:8500/v1/agent/service/register
+
+解除注册：
+# curl --request PUT http://127.0.0.1:8500/v1/agent/service/deregister/10.8.1.190
+
+
+批量注册：
+# cat /opt/shellscripts/auto_register_consul.sh 
+
+#!/bin/bash 
+all_IP=`cat /opt/shellscripts/ip.txt`
+name=node-exporter
+port=9100
+for  i  in ${all_IP}
+do
+	
+	curl -X PUT -d '{"id": "'$i'","name": "'$name'","address": "'$i'","port": '$port',"tags": ["sd_node_exporter"], "checks": [{"http": "http://'$i':'$port'/","interval": "5s"}]}' http://127.0.0.1:8500/v1/agent/service/register
+
+done
