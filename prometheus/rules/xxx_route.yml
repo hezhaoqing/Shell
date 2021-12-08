@@ -1,0 +1,69 @@
+groups:
+
+- name: Route_alerts                   # 规则名称
+  rules:
+  - alert: 路由器告警                    # 告警名称
+    expr: up{instance="10.10.10.1", job="snmp"} == 0  # 告警条件
+    for: 10s                           # 持续时间
+    labels:
+      alertlevel: P3                  # 告警级别
+    annotations:                      # 注释
+      summary: "路由器宕机了"    # 发送告警的内容
+      description: '请检查路由器.'
+
+  - alert: P5端口告警                  
+    expr: irate(ifOutOctets{job="snmp",instance="10.10.10.1",ifIndex="54"}[5m]) == 0 
+    for: 1m                       
+    labels:
+      alertlevel: P3              
+    annotations:                     
+      summary: "P5端口流量为0"   
+      description: '请检查路由器54端口.'
+
+  - alert: P6端口告警                  
+    expr: irate(ifOutOctets{job="snmp",instance="10.10.10.1",ifIndex="55"}[5m]) == 0 
+    for: 1m                          
+    labels:
+      alertlevel: P3            
+    annotations:                    
+      summary: "P6端口流量为0."   
+      description: '请检查路由器55端口.'
+
+  - alert: P5出口告警                  
+    expr: irate(ifOutOctets{job="snmp",instance="10.10.10.1",ifIndex="54"}[5m])/1000000 > 20 
+    for: 10m                     
+    labels:
+      alertlevel: P0              
+    annotations:                     
+      summary: "P5出口流量超过20M/s."    
+      description: '当前为 {{ $value | printf "%.2f" }}M.'
+
+  - alert: P5入口告警
+    expr: irate(ifInOctets{job="snmp",instance="10.10.10.1",ifIndex="54"}[5m])/1000000 > 20
+    for: 10m
+    labels:
+      alertlevel: P1
+    annotations:
+      summary: "P5入口流量超过20M/s."
+      description: '当前为 {{ $value | printf "%.2f" }}M.'
+
+
+  - alert: P6出口告警
+    expr: irate(ifOutOctets{job="snmp",instance="10.10.10.1",ifIndex="55"}[5m])/1000000 > 20
+    for: 10m
+    labels:
+      alertlevel: P0
+    annotations:
+      summary:  "P6出口流量超过20M/s."
+      description: '当前为 {{ $value | printf "%.2f" }}M.'
+
+  - alert: P6入口告警
+    expr: irate(ifInOctets{job="snmp",instance="10.10.10.1",ifIndex="55"}[5m])/1000000 > 20
+    for: 10m
+    labels:
+      alertlevel: P1
+    annotations:
+      summary: "P6入口流量超过20M/s."
+      description: '当前为 {{ $value | printf "%.2f" }}M.'
+
+
