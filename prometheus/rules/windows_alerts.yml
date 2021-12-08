@@ -1,0 +1,42 @@
+groups:
+
+- name: Windows_alerts                 # 规则名称
+  rules:
+  - alert: winCPU告警                  # 告警名称
+    expr: 100 - avg(irate(windows_cpu_time_total{mode="idle"}[5m])) by(instance) *100  > 80  # 告警条件
+    for: 10m                           # 持续时间
+    labels:
+      alertlevel: P0                   # 告警级别
+    annotations:                       # 注释
+      summary: "CPU使用率超过80%."      # 发送告警的内容
+      description: '当前的CPU使用率为 {{ $value | printf "%.0f" }}%.'
+
+  - alert: win内存告警
+    #expr: (1- windows_os_virtual_memory_free_bytes  / windows_os_virtual_memory_bytes) * 100 > 80
+    expr: (1 - windows_os_physical_memory_free_bytes / windows_cs_physical_memory_bytes) * 100 > 80
+    for: 10m
+    labels:
+      alertlevel: P1
+    annotations:
+      summary: "内存使用率超过80%."
+      description: '当前的内存使用率为 {{ $value | printf "%.0f" }}%.'
+
+
+  - alert: win磁盘告警
+    expr: (100 - (windows_logical_disk_free_bytes{volume=~"C:|D:|E:|F:|G:|H:|I:|J:"} / windows_logical_disk_size_bytes{volume=~"C:|D:|E:|F:|G:|H:|I:|J:"}) *100) > 90
+    for: 5m
+    labels:
+      alertlevel: P2
+    annotations:
+      summary:  "{{ $labels.volume }}盘使用率超过了90%."
+      description: '{{ $labels.instance }}的{{ $labels.volume }}盘当前的使用率为 {{ $value | printf "%.0f" }}%.'
+
+  - alert: win主机告警
+    expr: up{job=~".*_win_exporter.*"} == 0
+    for: 10s
+    labels:
+      alertlevel: P3
+    annotations:
+      summary: "主机 {{ $labels.instance }} 可能挂了。"
+      description: "主机 {{ $labels.instance }}已经10秒钟没有响应，请立即检查！"
+
