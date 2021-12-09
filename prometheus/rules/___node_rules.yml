@@ -1,0 +1,313 @@
+groups:
+- name: node.rules
+  rules:
+
+  - alert: NodeTargetMissing
+    expr: up{job="k8s-consul-node"} == 0
+    for: 30s
+    labels:
+      level: P0
+      m_instance: '{{ $labels.instance }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: 'Node节点采集任务目标丢失'
+      value: '{{ $value }}'
+
+  - alert: HostCPUUsedPercent
+    expr: node:cpu:percent{instance!~"10.30.208.*"} > 90
+    for: 3m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: '主机CPU 使用率大于90%'
+      value: '{{ $value | printf "%.2f" }}'
+
+  #- alert: HostCPULoadUsedPercent
+  #  expr: sum without(mode, cpu) (node_load15) / count(node_cpu_seconds_total{mode="system"}) without (mode, cpu) * 100 > 100
+  #  for: 3m
+  #  labels:
+  #    level: P1
+  #    m_instance: '{{ $labels.instance }}'
+  #  annotations:
+  #    summary: '主机CPU负载过高'
+  #    value: '{{ $value | printf "%.2f" }}'
+
+  - alert: HostCpuIdlePercent
+    expr: avg(irate(node_cpu_seconds_total{mode="idle",instance!~"10.30.208.*"}[1m])) by (instance,role) * 100 < 15
+    for: 5m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: '主机CPU Idle 小于 15%'
+      value: '{{ $value | printf "%.2f" }}'
+
+
+  - alert: HostMemUsedPercent
+    expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes{instance!~"10.30.208.*"}) * 100 > 95
+    for: 5m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: 主机内存使用率大于95%
+      value: '{{ $value | printf "%.2f" }}'
+
+
+  - alert: HostFreeDiskPercent
+    expr: node:disk:free:percent < 10
+    for: 5m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_mountpoint: '{{ $labels.mountpoint }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: 主机磁盘空闲小于15%
+      value: '{{ $value | printf "%.2f" }}'
+
+  - alert: HostFreeDiskPercent
+    expr: node:disk:free:percent < 20
+    for: 5m
+    labels:
+      level: P2
+      m_instance: '{{ $labels.instance }}'
+      m_mountpoint: '{{ $labels.mountpoint }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: 主机磁盘空闲小于20%
+      value: '{{ $value | printf "%.2f" }}'
+
+
+  - alert: HostDiskWillFullIn4Hours
+    expr: predict_linear(node_filesystem_free_bytes{fstype != "tmpfs"} [1h], 1 * 3600) < 0
+    for: 15m
+    labels:
+      level: P0
+      m_instance: '{{ $labels.instance }}'
+      m_mountpoint: '{{ $labels.mountpoint }}'
+      m_device: '{{ $labels.device }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: '主机磁盘剩余空间将在1小时后用完'
+
+  - alert: HostDiskIOUsedPercent
+    expr: rate(node_disk_io_time_seconds_total{instance!~"10.30.208.*"}[2m]) * 100 > 90
+    for: 5m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_device: '{{ $labels.device }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: 磁盘IO使用率大于90%
+      value: '{{ $value }}'
+
+
+  - alert: HostNetPacketDropHigh
+    expr: node:network:drop:packet > 1000
+    for: 5m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_device: '{{ $labels.device }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: 主机每秒丢包数大于1000
+      value: '{{ $value }}'
+
+
+  - alert: HostNetPacketErrHigh
+    expr: node:network:err:packet > 1000
+    for: 5m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_device: '{{ $labels.device }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: 主机每秒错误包大于1000
+      value: '{{ $value }}'
+
+  - alert: HostNetworkThroughputIn
+    expr: irate(node_network_receive_bytes_total{device=~"eth0|bond0|em1"}[2m]) / 1024 / 1024 > 800
+    for: 5m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_device: '{{ $labels.device }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: 主机网卡入口流量大于800MBps
+      value: '{{ $value | printf "%.2f" }}'
+
+  - alert: HighNetworkThroughputOut
+    expr: irate(node_network_transmit_bytes_total{device=~"eth0|bond0|em1"}[2m]) / 1024 / 1024 > 800
+    for: 5m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_device: '{{ $labels.device }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: 主机网卡出口流量大于800MBps
+      value: '{{ $value | printf "%.2f" }}'
+
+  - alert: HostFileFDUsedPercent
+    expr: node_filefd_allocated / node_filefd_maximum * 100 > 90
+    for: 3m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: 主机fd 使用率大于90%
+      value: '{{ $value }}'
+
+  - alert: HostDiskInodeUsedPercent
+    expr: (node_filesystem_files{fstype=~"xfs|ext4"} - node_filesystem_files_free{fstype=~"xfs|ext4"}) / node_filesystem_files{fstype=~"xfs|ext4"} * 100 > 80
+    for: 3m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: 主机Inode 使用率大于80%
+      value: '{{ $value | printf "%.2f" }}'
+
+
+  - alert: MoreZombieProcess
+    expr: node_processes_state{state="Z"} > 15
+    for: 3m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: 主机僵尸进程数过多
+      value: '{{ $value }}'
+
+  - alert: HostUnusualDiskReadRate
+    expr: sum by (instance,role,device) (irate(node_disk_read_bytes_total{instance!~"10.30.30.30|10.30.30.31|10.30.30.32|10.30.30.33|10.30.30.79|10.30.30.80|10.30.30.81|10.30.208.*"}[2m])) / 1024 / 1024 > 50
+    for: 5m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_device: '{{ $labels.device }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: "主机磁盘读数据超过50MB/s"
+      value: '{{ $value }}'
+
+  - alert: HostUnusualDiskWriteRate
+    expr: sum by (instance,role,device) (irate(node_disk_read_bytes_total{instance!~"10.30.30.30|10.30.30.31|10.30.30.32|10.30.30.33|10.30.30.79|10.30.30.80|10.30.30.81|10.30.208.*"}[2m])) / 1024 / 1024 > 50
+    for: 5m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_device: '{{ $labels.device }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: "主机磁盘写数据超过50MB/s"
+      value: '{{ $value }}'
+
+  - alert: HostUnusualDiskReadLatency
+    expr: rate(node_disk_read_time_seconds_total[1m]) / rate(node_disk_reads_completed_total[1m]) > 100
+    for: 5m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_device: '{{ $labels.device }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: "主机磁盘读延迟大于100ms"
+      value: '{{ $value }}'
+
+  - alert: HostUnusualDiskWriteLatency
+    expr: rate(node_disk_write_time_seconds_total[1m]) / rate(node_disk_writes_completed_total[1m]) > 100
+    for: 5m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_device: '{{ $labels.device }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: "主机磁盘写延迟大于100ms"
+      value: '{{ $value }}'
+
+  #- alert: HostSystemdServiceCrashed
+  #  expr: node_systemd_unit_state{state="failed"} == 1
+  #  for: 5m
+  #  labels:
+  #    level: P0
+  #  annotations:
+  #    summary: "主机SystemD服务挂了"
+  #    value: '{{ $value }}'
+
+  - alert: HostOomKillDetected
+    expr: increase(node_vmstat_oom_kill[30m]) > 1
+    for: 5m
+    labels:
+      level: P1
+    annotations:
+      summary: "主机有进程被 OOM Killed"
+      value: '{{ $value }}'
+
+  - alert: NodeTcpCurrEstab
+    expr: node_netstat_Tcp_CurrEstab > 30000
+    for: 5m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: "主机tcp连接数持续五分钟大于30000"
+      value: '{{ $value }}'
+
+  - alert: NodeTcpListenDrops
+    expr: irate(node_netstat_TcpExt_ListenDrops{role="nginx"}[1m]) > 100
+    for: 30s
+    labels:
+      level: P0
+      m_instance: '{{ $labels.instance }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: "最近30s Nginx主机监听列连接丢弃数 > 100"
+      value: '{{ $value }}'
+
+  - alert: NodeTcpListenOverflows
+    expr: irate(node_netstat_TcpExt_ListenOverflows{role="nginx"}[1m]) > 100
+    for: 30s
+    labels:
+      level: P0
+      m_instance: '{{ $labels.instance }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: "最近30s Nginx主机监听 socket 队列溢出数 > 100"
+      value: '{{ $value }}'
+
+  - alert: NodeTcpListenDrops
+    expr: irate(node_netstat_TcpExt_ListenDrops{role!="nginx"}[1m]) > 100
+    for: 5m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: "最近5 分钟Nginx主机监听列连接丢弃数 > 100"
+      value: '{{ $value }}'
+
+  - alert: NodeTcpListenOverflows
+    expr: irate(node_netstat_TcpExt_ListenOverflows{role!="nginx"}[1m]) > 100
+    for: 5m
+    labels:
+      level: P1
+      m_instance: '{{ $labels.instance }}'
+      m_role: '{{ $labels.role }}'
+    annotations:
+      summary: "最近5分钟主机监听 socket 队列溢出数 > 100"
+      value: '{{ $value }}'
