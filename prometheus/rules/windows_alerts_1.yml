@@ -1,0 +1,109 @@
+groups:
+
+- name: Windows_alerts                   # 规则名称
+  rules:
+  - alert: winCPU告警                    # 告警名称
+   # expr: 100 - avg(irate(windows_cpu_time_total{mode="idle"}[5m])) by(instance) *100  > 80  # 告警条件
+    expr:  100 - avg(irate(windows_cpu_time_total{instance!="10.8.1.14",mode="idle"}[5m])) by(instance) *100  > 90  # 告警条件
+    for: 5m                           # 持续时间
+    labels:
+      alertlevel: P0                  # 告警级别
+    annotations:                      # 注释
+      summary: "CPU使用率超过80%."    # 发送告警的内容
+      description: '当前的CPU使用率为 {{ $value | printf "%.0f" }}%.'
+
+  - alert: win内存告警
+   # expr: (1- windows_os_virtual_memory_free_bytes  / windows_os_virtual_memory_bytes) * 100 > 80
+   # expr: (1 - windows_os_physical_memory_free_bytes / windows_cs_physical_memory_bytes) * 100 > 95
+    expr: (1 - windows_os_physical_memory_free_bytes / windows_cs_physical_memory_bytes{instance!~"10.8.1.49|10.8.1.14|10.8.1.4|10.8.2.5|10.8.1.21|10.8.1.10|10.8.1.42"}) * 100 > 90
+    for: 5m
+    labels:
+      alertlevel: P2
+    annotations:
+      summary: "内存使用率超过90%."
+      description: '当前的内存使用率为 {{ $value | printf "%.0f" }}%.'
+
+
+  - alert: C盘告警
+    #expr: (100 - (windows_logical_disk_free_bytes{} / windows_logical_disk_size_bytes{volume="C:"})  *100) > 90
+    expr: (100 - (windows_logical_disk_free_bytes{} / windows_logical_disk_size_bytes{instance!="10.8.1.14",volume="C:"})  *100)> 90
+    for: 5m
+    labels:
+      alertlevel: P2
+    annotations:
+      summary:  "C盘使用率超过了90%."
+      description: '{{ $labels.instance }}的C盘当前的使用率为 {{ $value | printf "%.0f" }}%.'
+
+  - alert: D盘告警
+    #expr: (100 - (windows_logical_disk_free_bytes{} / windows_logical_disk_size_bytes{volume="D:"})  *100) > 95
+    expr: (100 - (windows_logical_disk_free_bytes{} / windows_logical_disk_size_bytes{instance!="10.8.1.14",volume="D:"})  *100) > 95
+    for: 5m
+    labels:
+      alertlevel: P2
+    annotations:
+      summary:  "D盘使用率超过了95%."
+      description: '{{ $labels.instance }}的D盘当前的使用率为 {{ $value | printf "%.0f" }}%.'
+
+  - alert: E盘告警
+    expr: windows_logical_disk_free_bytes{volume="E:"} /1024 /1024 /1024 < 10
+    for: 5m
+    labels:
+      alertlevel: P2
+    annotations:
+      summary:  "E盘可用容量少于10G."
+      description: '{{ $labels.instance }}的E盘可用容量当前剩余 {{ $value | printf "%.0f" }}G.'
+
+  - alert: F盘告警
+    expr: (100 - (windows_logical_disk_free_bytes{} / windows_logical_disk_size_bytes{volume="F:"})  *100) > 95
+    for: 5m
+    labels:
+      alertlevel: P2
+    annotations:
+      summary:  "F盘使用率超过了95%."
+      description: '{{ $labels.instance }}的F盘当前的使用率为 {{ $value | printf "%.0f" }}%.'
+
+  - alert: G盘告警
+    expr: (100 - (windows_logical_disk_free_bytes{} / windows_logical_disk_size_bytes{volume="G:"})  *100) > 95
+    for: 5m
+    labels:
+      alertlevel: P2
+    annotations:
+      summary:  "G盘使用率超过了95%."
+      description: '{{ $labels.instance }}的G盘当前的使用率为 {{ $value | printf "%.0f" }}%.'
+
+  - alert: H盘告警
+    expr: (100 - (windows_logical_disk_free_bytes{} / windows_logical_disk_size_bytes{volume="H:"})  *100) > 95
+    for: 5m
+    labels:
+      alertlevel: P2
+    annotations:
+      summary:  "H盘使用率超过了95%."
+      description: '{{ $labels.instance }}的H盘当前的使用率为 {{ $value | printf "%.0f" }}%.'
+
+  - alert: I盘告警
+    expr: (100 - (windows_logical_disk_free_bytes{} / windows_logical_disk_size_bytes{volume="I:"})  *100) > 95
+    for: 5m
+    labels:
+      alertlevel: P2
+    annotations:
+      summary:  "I盘使用率超过了95%."
+      description: '{{ $labels.instance }}的I盘当前的使用率为 {{ $value | printf "%.0f" }}%.'
+
+  - alert: J盘告警
+    expr: (100 - (windows_logical_disk_free_bytes{} / windows_logical_disk_size_bytes{volume="J:"})  *100) > 95
+    for: 5m
+    labels:
+      alertlevel: P2
+    annotations:
+      summary:  "J盘使用率超过了95%."
+      description: '{{ $labels.instance }}的J盘当前的使用率为 {{ $value | printf "%.0f" }}%.'
+
+  - alert: win主机告警
+    expr: up{instance!="10.8.1.14",job=~".*_win_exporter.*"} == 0
+    for: 5m
+    labels:
+      alertlevel: P3
+    annotations:
+      summary: "主机 {{ $labels.instance }} 可能挂了。"
+      description: "主机 {{ $labels.instance }}已经超过5分钟没有响应，请立即检查！"
+
