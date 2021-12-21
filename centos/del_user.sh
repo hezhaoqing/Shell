@@ -5,7 +5,6 @@ cat << EOF
 ##############################################################
 EOF
 read -p  "Please  input username  which you want to del:" username
-userdel  -r $username
-sed  -i "/${username}/d" /etc/sudoers
+userdel  -r $username  #  &&  sed  -i "/${username}/d" /etc/sudoers
 
 echo "Delete $username finished."
