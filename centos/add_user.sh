@@ -39,3 +39,18 @@ while true;
                 break;
 
         done
+
+
+###
+test -d /home/$user/.ssh || mkdir -p /home/$user/.ssh
+
+sshpass -p xxxx ssh -o StrictHostKeyChecking=no jenkins@10.0.2.10 'pwd'  >> /dev/null 2>&1
+sshpass -p xxxx scp jenkins@10.0.2.10:/home/jenkins/.ssh/id_rsa.pub /home/$user/.ssh/authorized_keys
+
+chown $user:$user -R /home/$user/.ssh
+
+
+
+
+
+
