@@ -1,0 +1,47 @@
+为了区分不同来源的日志，可以通过自定义标签 或 自定义字段
+也就是通过 定义  tags  和   fields
+
+1.tags: [“nginx-access”]       自定义标签
+2.fields:                       自定义字段
+   from: nginx-access
+   ip: "192.168.168.13"
+
+
+---------------------------
+[root@aly-sh7-epl-elk elk]# cat filebeat/filebeat.yml  |grep -v "^ *#" |grep -v ^$
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /data/nginx/access.log
+  tags: ["nginx-access"]
+  fields:
+    type: nginx-access
+- type: log
+  enabled: true
+  paths:
+    - /data/nginx/error.log
+  tags: ["nginx-error"]
+- type: log
+  enabled: true
+  paths:
+    - /var/log/secure
+  tags: ["sys-log"]
+  fields:
+    type: sys-log
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+setup.template.settings:
+  index.number_of_shards: 2
+setup.kibana:
+  host: "localhost:5601"
+output.logstash:
+  hosts: ["localhost:5044"]
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~
+------------------------------------
