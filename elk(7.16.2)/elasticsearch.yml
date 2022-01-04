@@ -1,0 +1,13 @@
+[root@aly-sh7-epl-elk elk]# cat elastic/config/elasticsearch.yml   |grep -v "^ *#" |grep -v ^$
+cluster.name: epl-elk
+node.name: node-1
+path.data: /data/elk/elastic/data
+path.logs: /data/elk/elastic/logs
+network.host: 0.0.0.0
+http.port: 9200
+cluster.initial_master_nodes: ["node-1"]
+http.cors.enabled: true
+http.cors.allow-origin: "*"
+http.cors.allow-headers: Authorization
+xpack.security.enabled: true
+xpack.security.transport.ssl.enabled: true
