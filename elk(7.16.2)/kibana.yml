@@ -1,0 +1,8 @@
+[root@aly-sh7-epl-elk elk]# cat kibana/config/kibana.yml   |grep -v "^ *#" |grep -v ^$
+server.port: 5601
+server.host: "127.0.0.1"
+server.publicBaseUrl: "http://1xx.1xx.1xx.36:5601"
+elasticsearch.hosts: ["http://localhost:9200"]
+elasticsearch.username: "elastic"
+elasticsearch.password: "e*****lk"
+i18n.locale: "zh-CN"
