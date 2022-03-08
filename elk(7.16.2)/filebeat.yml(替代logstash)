@@ -1,0 +1,50 @@
+[root@txy-sh2-epl-ocr-prod1 ~]# cat /data/filebeat.yml   |grep -v "^ *#" |grep -v ^$
+filebeat.inputs:
+- type: filestream
+  enabled: false
+  paths:
+    - /var/log/*.log
+- type: log
+  enabled: true
+  paths:
+    - /home/app01/eplbks-ocr/logs/*.log
+  multiline.pattern: '^[[:space:]]|^Caused by:'
+  multiline.negate: false
+  multiline.match: after
+  tags: ["eplbks-ocr"]
+  fields_under_root: true
+  fields:
+    type: java
+    project: eplbks-ocr
+- type: log
+  enabled: true
+  paths:
+    - /home/app01/eplbks-face/logs/*.log
+  multiline.pattern: '^[[:space:]]|^Caused by:'
+  multiline.negate: false
+  multiline.match: after
+  tags: ["eplbks-face"]
+  fields_under_root: true
+  fields:
+    type: java
+    project: eplbks-face
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+setup.template.settings:
+  index.number_of_shards: 1
+setup.kibana:
+output.elasticsearch:
+  hosts: ["10.8.1.88:9200"]
+  index: "%{[project]}-log-%{+YYYY.MM.dd}"
+  username: "elastic"
+  password: "eplbkselk"
+setup.template.name: "java-log-prod"
+setup.template.pattern: "eplbks-ocr-*"
+setup.ilm.enabled: false
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
+  - add_kubernetes_metadata: ~
