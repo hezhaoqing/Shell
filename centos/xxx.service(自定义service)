@@ -1,0 +1,44 @@
+
+
+
+[Unit]
+#服务的描述信息
+Description=xxx daemon 
+#本服务依赖的服务，启动本服务前会检查并启动依赖的服务，且只有依赖的服务全都成功启动，本服务才能启动
+Requires=aaa.service bbb.service 
+#同Requires，本服务需要在指定的服务都启动之后才能启动
+After=111.service 222.service
+#本服务需要在指定的服务启动之前启动
+Before=AAA.service BBB.service
+
+[Service]
+#服务的启动类型，idle是后台方式启动
+Type=idle
+#服务启动命令和停止命令的超时时间，即服务启动命令和停止命令超时时间都为10s，若不设置超时时间或设置为0，则表示没有限定超时时间，下同
+#TimeoutSec=10s
+#服务启动命令的超时时间
+TimeoutStartSec=10s
+#启动命令的前置命令 
+ExecStartPre=/bin/echo "starting service"
+#服务管理的应用程序的启动命令
+ExecStart=/usr/local/bin/dophin
+#启动命令的后置命令
+ExecStartPost=/bin/echo "start done"
+#服务停止命令的超时时间
+TimeoutStopSec=10s
+#服务管理的应用程序的停止命令（$MAINPID是服务管理的应用程序的进程ID，下同）
+ExecStop=/bin/kill -9 $MAINPID
+#停止命令的后置命令
+ExecStopPost=/bin/echo "stop done"
+#服务重启命令
+ExecReload=/bin/kill -1 $MAINPID
+#服务重启方式，no表示不重启，always表示总是尝试重启（只有在服务意外挂掉的时候会重启）
+Restart=always
+#服务重启前的等待时间
+RestartSec=1s
+#停止服务杀死进程的方式，process表示只杀死主进程，即服务管理的应用程序
+KillMode=process
+
+[Install]
+#设置只有系统是多用户的运行方式下才能启动本服务
+WantedBy=multi-user.target
