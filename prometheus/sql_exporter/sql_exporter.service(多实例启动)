@@ -1,0 +1,30 @@
+[root@prometheus sql_exporter-0.5.linux-amd64]# cat /usr/lib/systemd/system/sql_exporter.service
+[Unit]
+Description=sql-exporter
+After=network.target
+
+[Service]
+Restart=on-failure
+WorkingDirectory=/data/epl-prometheus/sql_exporter-0.5.linux-amd64
+ExecStart=/data/epl-prometheus/sql_exporter-0.5.linux-amd64/sql_exporter
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+
+*********************************************************************************************************************************************
+
+多实例开启，需指定配置文件和端口：
+[root@prometheus sql_exporter-0.5.linux-amd64]# cat /usr/lib/systemd/system/sql_exporter9499.service
+[Unit]
+Description=sql-exporter
+After=network.target
+
+[Service]
+Restart=on-failure
+WorkingDirectory=/data/epl-prometheus/sql_exporter-0.5.linux-amd64
+ExecStart=/data/epl-prometheus/sql_exporter-0.5.linux-amd64/sql_exporter -config.file "sql_exporter9499.yml" -web.listen-address ":9499"
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
