@@ -1,0 +1,9 @@
+[root@prometheus epl-prometheus]# ll
+total 4
+drwxr-xr-x. 4 root root  122 Jun 27 16:17 alertmanager-0.23.0.linux-amd64
+drwxr-xr-x. 2 root root   80 Jun  6 09:39 blackbox_exporter-0.19.0.linux-amd64
+drwxr-xr-x. 2 root root   58 Nov 24  2021 mysqld_exporter-0.13.0.linux-amd64
+drwxr-xr-x. 2 root root   56 Aug  6  2021 node_exporter-1.2.2.linux-amd64
+drwxr-xr-x. 6 root root 4096 Jun 17 09:45 prometheus-2.31.1.linux-amd64
+drwxr-xr-x. 2 3434 3434  156 Apr 21 11:45 snmp_exporter-0.20.0.linux-amd64
+drwxr-xr-x. 2 root root  242 Jun 20 09:36 sql_exporter-0.5.linux-amd64
