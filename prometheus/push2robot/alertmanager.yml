@@ -1,0 +1,22 @@
+[root@prometheus epl-prometheus]# cat alertmanager-0.23.0.linux-amd64/alertmanager.yml
+global:
+  resolve_timeout: 10m
+
+
+route:
+  group_by: ['alertname']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'web.hook'
+receivers:
+- name: 'web.hook'
+  webhook_configs:
+  - send_resolved: true
+    url: 'http://10.8.1.83:5000/alertinfo'
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']
