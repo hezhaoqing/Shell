@@ -1,0 +1,73 @@
+[root@prometheus epl-prometheus]# cat /opt/shellscripts/python/Alert.py
+# -*- coding: UTF-8 -*-
+import requests
+from flask import jsonify
+import json
+import datetime
+
+def parse_time(*args):
+    times = []
+    for dates in args:
+        eta_temp = dates
+        fd = datetime.datetime.strptime(eta_temp, "%Y-%m-%dT%H:%M:%S.%fZ")
+        eta = (fd + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S.%f")
+        times.append(eta)
+    return times
+
+def alert(types,levels,topics,details,times,instances):
+    params = json.dumps({
+        "msgtype": "text",
+        "text":
+            {
+                "content": "**********告警通知**********\n告警类型: {0}\n告警级别: {1}\n=====================\n告警主题: {2}\n告警详情:{3}\n故障时间: {4}\n故障实例: {5}".format(types,levels,topics,details,times[0],instances)
+            }
+        })
+
+    return params
+
+def recive(types,times,instances):
+    params = json.dumps({
+        "msgtype": "text",
+        "text":
+            {
+                "content": "**********恢复通知**********\n{0} 已恢复。\n=====================\n\n故障时间: {1}\n恢复时间: {2}\n恢复实例: {3}".format(types,times[0],times[1],instances)
+            }
+        })
+
+    return params
+
+def webhook_url(params):
+    headers = {"Content-type": "application/json"}
+    """
+    *****重要*****
+    """
+    url = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2a820024-2efd-43ad-a0af-a4488c51791a"
+    r = requests.post(url,params,headers)
+
+def send_alert(json_re):
+    for i in json_re['alerts']:
+        if i['status'] == 'firing':
+            webhook_url(alert(i['labels']['alertname'],i['labels']['alertlevel'],i['annotations']['summary'],i['annotations']['description'],parse_time(i['startsAt']),i['labels']['instance']))
+        elif i['status'] == 'resolved':
+            webhook_url(recive(i['labels']['alertname'],parse_time(i['startsAt'],i['endsAt']),i['labels']['instance']))
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[root@prometheus epl-prometheus]# cat /opt/shellscripts/python/main.py
+from flask import Flask, request
+import Alert                                   ### 导入Alert.py
+import requests
+import json
+import datetime
+app = Flask(__name__)
+
+@app.route('/alertinfo', methods=['POST'])
+def alert_data():
+    data = request.get_data()
+    json_re = json.loads(data)
+    json.dumps(json_re)
+    Alert.send_alert(json_re)
+    return json_re
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=5000)
