@@ -1,0 +1,96 @@
+# -*- coding: utf-8 -*-
+import os
+import json
+import requests
+import arrow
+from flask import Flask
+from flask import request
+app = Flask(__name__)
+ROBOT_TOKEN = "d864****-6*05-40*d-b*ac-******032835"
+
+
+def bytes2json(data_bytes):
+    data = data_bytes.decode('utf8').replace("'", '"')
+    return json.loads(data)
+
+
+def makealertdata(data):
+    for output in data['alerts'][:]:
+        try:
+            message = output['annotations']['description']
+        except KeyError:
+            try:
+                message = output['annotations']['summary']
+            except KeyError:
+                message = 'null'
+        try:
+            value = output['annotations']['value']
+        except KeyError:
+            value = 'null'
+
+
+        if output['status'] == 'firing':
+            status_zh = '报警'
+            alertname = output['labels']['alertname']
+            title = '%s 触发' % (output['labels']['alertname'])
+
+            title = f'😱 <font color=\"warning\">PROBLEM</font>'
+
+            send_data = {
+                "msgtype": "markdown",
+                "markdown": {
+                    "content": "## %s \n\n" % title +
+                    ">**告警类型**: %s \n\n" % output['labels']['alertname'] +
+                    ">**告警级别**: %s \n\n" % output['labels']['alertlevel'] +
+                    ">**告警实例**: %s \n\n" % output['labels']['instance'] +
+                    ">**告警详情**: %s \n\n" % message +
+                    ">**当前状态**: %s \n\n" % output['status'] +
+                    ">**告警时间**: %s \n\n" % arrow.get(output['startsAt']).to('Asia/Shanghai').format(
+                        'YYYY-MM-DD HH:mm:ss ZZ')
+                }
+            }
+        elif output['status'] == 'resolved':
+            status_zh = '恢复'
+            title = '%s 恢复' % (output['labels']['alertname'])
+            title = f'😅 <font color=\"info\">OK</font>'
+            send_data = {
+                "msgtype": "markdown",
+                "markdown": {
+                    "content": "## %s \n\n" % title +
+                    "%s  已恢复 \n\n" % output['labels']['alertname'] +
+                    ">**恢复实例**: %s \n\n" % output['labels']['instance'] +
+                    ">**当前状态**: %s \n\n" % output['status'] +
+                    ">**告警时间**: %s \n\n" % arrow.get(output['startsAt']).to('Asia/Shanghai').format(
+                        'YYYY-MM-DD HH:mm:ss ZZ') +
+                    ">**恢复时间**: %s \n" % arrow.get(output['endsAt']).to('Asia/Shanghai').format(
+                        'YYYY-MM-DD HH:mm:ss ZZ')
+                }
+            }
+        return send_data
+
+
+def send_alert(data):
+    token = ROBOT_TOKEN
+    if not token:
+        print('you must set ROBOT_TOKEN env')
+        return
+    url = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=%s' % token
+    send_data = makealertdata(data)
+    req = requests.post(url, json=send_data)
+    result = req.json()
+    if result['errcode'] != 0:
+        print('notify dingtalk error: %s' % result['errcode'])
+
+
+@app.route('/alertinfo', methods=['POST', 'GET'])
+def send():
+    if request.method == 'POST':
+        post_data = request.get_data()
+        send_alert(bytes2json(post_data))
+        return 'success'
+    else:
+        return 'weclome to use prometheus alertmanager webhook server!'
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
