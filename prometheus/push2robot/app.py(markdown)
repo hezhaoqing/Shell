@@ -5,8 +5,10 @@ import requests
 import arrow
 from flask import Flask
 from flask import request
+
+
 app = Flask(__name__)
-ROBOT_TOKEN = "d864****-6*05-40*d-b*ac-******032835"
+ROBOT_TOKEN = "d864****-6*05-40*d-b*ac-******032835"   ### 机器人key值
 
 
 def bytes2json(data_bytes):
@@ -28,7 +30,6 @@ def makealertdata(data):
         except KeyError:
             value = 'null'
 
-
         if output['status'] == 'firing':
             status_zh = '报警'
             alertname = output['labels']['alertname']
@@ -49,6 +50,7 @@ def makealertdata(data):
                         'YYYY-MM-DD HH:mm:ss ZZ')
                 }
             }
+            
         elif output['status'] == 'resolved':
             status_zh = '恢复'
             title = '%s 恢复' % (output['labels']['alertname'])
@@ -89,7 +91,7 @@ def send():
         send_alert(bytes2json(post_data))
         return 'success'
     else:
-        return 'weclome to use prometheus alertmanager webhook server!'
+        return 'Welcome to use prometheus alertmanager webhook server!'
 
 
 if __name__ == '__main__':
