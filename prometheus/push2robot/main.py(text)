@@ -5,6 +5,7 @@ from flask import jsonify
 import json
 import datetime
 
+
 def parse_time(*args):
     times = []
     for dates in args:
@@ -13,6 +14,7 @@ def parse_time(*args):
         eta = (fd + datetime.timedelta(hours=8)).strftime("%Y-%m-%d %H:%M:%S.%f")
         times.append(eta)
     return times
+
 
 def alert(types,levels,topics,details,times,instances):
     params = json.dumps({
@@ -25,6 +27,7 @@ def alert(types,levels,topics,details,times,instances):
 
     return params
 
+
 def recive(types,times,instances):
     params = json.dumps({
         "msgtype": "text",
@@ -36,6 +39,7 @@ def recive(types,times,instances):
 
     return params
 
+
 def webhook_url(params):
     headers = {"Content-type": "application/json"}
     """
@@ -43,6 +47,7 @@ def webhook_url(params):
     """
     url = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2a820024-2efd-43ad-a0af-a4488c51791a"
     r = requests.post(url,params,headers)
+
 
 def send_alert(json_re):
     for i in json_re['alerts']:
@@ -61,6 +66,7 @@ import json
 import datetime
 app = Flask(__name__)
 
+
 @app.route('/alertinfo', methods=['POST'])
 def alert_data():
     data = request.get_data()
@@ -68,6 +74,7 @@ def alert_data():
     json.dumps(json_re)
     Alert.send_alert(json_re)
     return json_re
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
