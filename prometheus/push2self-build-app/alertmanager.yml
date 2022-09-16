@@ -1,0 +1,36 @@
+##############企业微信告警########
+
+global:
+  resolve_timeout: 10m   #
+  wechat_api_url: 'https://qyapi.weixin.qq.com/cgi-bin/'
+  wechat_api_corp_id: 'wwd5xxxxxxxxxxxxxx825'      #企业ID
+  wechat_api_secret: 'LjNBxxxxxxxxxxxxxxxxxxxxxxxDigXcc'      # Prometheus监控的Secret
+
+##################################
+templates:
+  - 'templates/*.tmpl'
+
+##################################
+route:
+  group_by: ['alertname']
+  group_wait: 1s
+  group_interval: 20s
+  repeat_interval: 12h
+  receiver: 'wechat'
+
+
+receivers:
+ 
+ - name: 'wechat'
+   wechat_configs:
+   - to_party: '7'  ### 部门id
+     agent_id: '1000014'
+     api_secret: 'LjNBmA1Axxxxxxxxxxxxxxxxxx3EDigXcc'      # Prometheus监控的Secret
+     send_resolved: true
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'dev', 'instance']
